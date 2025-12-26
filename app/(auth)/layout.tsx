@@ -8,26 +8,22 @@ export default function Layout({
     return (
     <section className="h-screen w-full flex overflow-hidden bg-white">
     <div className="h-full w-full grid grid-cols-1 md:grid-cols-2">
-
-        {/* LEFT SIDE IMAGE */}
         <div className="relative hidden md:block h-full w-full">
-          <Image
+        <Image
             src="/images/loginphoto.jpg"
             alt="Music Headphones"
             fill
             priority
             className="object-cover"
-          />
+        />
         </div>
-
-        {/* RIGHT SIDE FORM - Forced White Background */}
         <div className="flex h-full items-center justify-center bg-white px-6 md:px-12">
-          <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-[400px]">
             {children}
-          </div>
+        </div>
         </div>
 
-      </div>
+    </div>
     </section>
-  );
+);
 }
