@@ -1,76 +1,84 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { startTransition, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { LoginData, loginSchema } from "../schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginValue } from "../schema";
+
 export default function LoginForm() {
-    const router = useRouter();
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<LoginData>({
-        resolver: zodResolver(loginSchema),
-        mode: "onSubmit",
-    });
-    const [pending, setTransition] = useTransition()
+const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+} = useForm<LoginValue>({
+    resolver: zodResolver(loginSchema),
+});
 
-    const submit = async (values: LoginData) => {
-        // GOTO
-        setTransition( async () => {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // router.push("/");
-        })
-        console.log("login", values);
-    };
+const onSubmit = (data: LoginValue) => {
+    console.log("Login Data:", data);
+};
 
-    return (
-        <form onSubmit={handleSubmit(submit)} className="space-y-4">
-            <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="email">Email</label>
-                <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    className="h-10 w-full rounded-md border border-black/10 dark:border-white/15 bg-background px-3 text-sm outline-none focus:border-foreground/40"
-                    {...register("email")}
-                    placeholder="you@example.com"
-                />
-                {errors.email?.message && (
-                    <p className="text-xs text-red-600">{errors.email.message}</p>
-                )}
-            </div>
+return (
+    <div className="w-full space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        
+        <div className="space-y-1.5">
+        <label className="text-[13px] font-semibold text-gray-700">Email or Username</label>
+        <input
+            {...register("email")}
+            placeholder="Enter your email or username"
+            className={`w-full px-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
+            errors.email ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+            }`}
+        />
+        {errors.email && <p className="text-[11px] text-red-500">{errors.email.message}</p>}
+        </div>
 
-            <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    className="h-10 w-full rounded-md border border-black/10 dark:border-white/15 bg-background px-3 text-sm outline-none focus:border-foreground/40"
-                    {...register("password")}
-                    placeholder="••••••"
-                />
-                {errors.password?.message && (
-                    <p className="text-xs text-red-600">{errors.password.message}</p>
-                )}
-            </div>
-
-            <button
-                type="submit"
-                disabled={isSubmitting || pending}
-                className="h-10 w-full rounded-md bg-foreground text-background text-sm font-semibold hover:opacity-90 disabled:opacity-60"
-            >
-                { isSubmitting || pending ? "Logging in..." : "Log in"}
-            </button>
-
-            <div className="mt-1 text-center text-sm">
-                Don't have an account? <Link href="/register" className="font-semibold hover:underline">Sign up</Link>
-            </div>
-        </form>
-    );
+        
+        <div className="space-y-1.5">
+        <label className="text-[13px] font-semibold text-gray-700">Password</label>
+        <input
+            {...register("password")}
+            type="password"
+            placeholder="Enter your password"
+            className={`w-full px-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
+            errors.password ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+            }`}
+        />
+        {errors.password && <p className="text-[11px] text-red-500">{errors.password.message}</p>}
+        </div>
+        <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" className="w-4 h-4 rounded border-gray-300 accent-[#8b5cf6] cursor-pointer" />
+            <span className="text-[13px] text-gray-500 group-hover:text-gray-700">Remember me</span>
+        </label>
+        <Link href="#" className="text-[13px] text-[#8b5cf6] font-semibold hover:underline">
+            Forgot password?
+        </Link>
+        </div>
+        <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-200 active:scale-[0.98]"
+        >
+        {isSubmitting ? "Logging in..." : "Login"}
+        </button>
+    </form>
+    <div className="pt-4 text-center border-t border-gray-100">
+        <p className="text-sm text-gray-600">
+        Don't have an account?{" "}
+        <Link
+            href="/register"
+            className="text-[#8b5cf6] font-bold hover:text-[#7c3aed] transition-colors"
+        >
+            Register
+        </Link>
+        </p>
+    </div>
+    <div className="flex justify-center gap-6 text-[11px] text-gray-400">
+        <Link href="#" className="hover:text-gray-600">Terms of Service</Link>
+        <Link href="#" className="hover:text-gray-600">Privacy Policy</Link>
+    </div>
+    </div>
+);
 }
