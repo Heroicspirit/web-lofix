@@ -22,10 +22,10 @@ export default function LoginForm() {
     try {
       console.log("Login Data:", data);
       
-      // Simulate an API call delay
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Redirect to the dashboard in the (public) folder
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
@@ -36,7 +36,7 @@ export default function LoginForm() {
     <div className="w-full space-y-8">
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Email Field */}
+
         <div className="space-y-1.5">
           <label className="text-[13px] font-semibold text-gray-700">Email Address</label>
           <div className="relative">
@@ -53,7 +53,6 @@ export default function LoginForm() {
           {errors.email && <p className="text-[11px] text-red-500">{errors.email.message}</p>}
         </div>
 
-        {/* Password Field */}
         <div className="space-y-1.5">
           <label className="text-[13px] font-semibold text-gray-700">Password</label>
           <div className="relative">
@@ -70,7 +69,6 @@ export default function LoginForm() {
           {errors.password && <p className="text-[11px] text-red-500">{errors.password.message}</p>}
         </div>
 
-        {/* Remember & Forgot Password */}
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 cursor-pointer group">
             <input 
@@ -84,7 +82,7 @@ export default function LoginForm() {
           </Link>
         </div>
 
-        {/* Submit Button */}
+
         <button
           type="submit"
           disabled={isSubmitting}
@@ -94,7 +92,7 @@ export default function LoginForm() {
         </button>
       </form>
 
-      {/* FOOTER SECTION */}
+
       <div className="pt-6 text-center border-t border-gray-100">
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}

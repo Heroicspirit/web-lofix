@@ -46,7 +46,7 @@ export default function RegisterForm() {
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
                 {...register("name")}
-                placeholder="John Doe"
+                placeholder="Enter your name"
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 outline-none focus:border-[#8b5cf6] transition-all"
             />
             </div>
