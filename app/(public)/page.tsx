@@ -32,10 +32,10 @@ export default function RootLandingPage() {
 
   return (
     <div className="py-6 space-y-12 pb-20">
-      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#9d7cfd] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
+      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#8275aa] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
         <div className="relative z-10">
           <p className="text-sm font-medium opacity-80 mb-2 flex items-center gap-2">
-             <Sparkles size={16} /> Featured Album: Synthwave Dreams
+            <Sparkles size={16} /> Featured Album: Synthwave Dreams
           </p>
           <h1 className="text-5xl font-bold max-w-xl leading-tight mb-6">Discover Your Next Obsession</h1>
           <button 
@@ -66,7 +66,7 @@ export default function RootLandingPage() {
               <div className="relative w-40 h-40 mx-auto mb-4 rounded-full overflow-hidden shadow-md group-hover:shadow-xl transition-all">
                 <img src={artist.src} alt={artist.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-xl"><Play size={20} fill="currentColor" /></div>
+                  <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-xl"><Play size={20} fill="currentColor" /></div>
                 </div>
               </div>
               <h3 className="font-bold text-gray-900">{artist.name}</h3>

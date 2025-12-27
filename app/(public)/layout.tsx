@@ -7,18 +7,13 @@ import { usePathname } from "next/navigation";
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // 1. Identify if we are on the dashboard page
   const isDashboard = pathname === "/dashboard";
-
-  // 2. If it's the dashboard, return ONLY the content without Sidebar or Header
   if (isDashboard) {
     return <main className="w-full h-full">{children}</main>;
-  }
+}
 
-  // 3. Otherwise, show the full Landing Page layout (Sidebar + Header)
   return (
     <div className="flex h-screen bg-white overflow-hidden text-gray-900">
-      {/* --- SIDEBAR --- */}
       <aside className="w-64 border-r border-gray-100 flex flex-col py-8 px-6 bg-white">
         <div className="flex items-center gap-2 mb-10 text-[#8b5cf6]">
           <Headphones size={28} strokeWidth={2.5} />
@@ -36,9 +31,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         </nav>
       </aside>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Header */}
         <header className="h-20 flex items-center justify-between px-10 bg-white/50 backdrop-blur-md">
           <div className="w-96 bg-gray-50 rounded-full px-5 py-2 flex items-center gap-3">
             <Search size={18} className="text-gray-400" />
@@ -52,7 +45,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           </div>
         </header>
 
-        {/* Dynamic Page Content */}
         <main className="flex-1 overflow-y-auto px-10 pb-10">
           {children}
         </main>
