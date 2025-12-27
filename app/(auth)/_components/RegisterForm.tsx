@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { Mail, Lock, User, Headphones } from "lucide-react"; 
+import { Mail, Lock, User, Headphones } from "lucide-react";
 import { registerSchema, type RegisterData } from "../schema";
 
 export default function RegisterForm() {
