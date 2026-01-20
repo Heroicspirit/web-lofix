@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, Lock, Headphones } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { loginSchema, type LoginValue } from "../schema";
+import { handleLogin } from "@/lib/actions/auth-action"; // Import your action
+import { useState } from "react";
 
 export default function LoginForm() {
   const router = useRouter();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -19,23 +22,31 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: LoginValue) => {
+    setServerError(null);
     try {
-      console.log("Login Data:", data);
-      
+      // Call the Server Action you committed
+      const result = await handleLogin(data);
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-
-      router.push("/dashboard");
+      if (result.success) {
+        router.push("/dashboard");
+        router.refresh(); // Ensures the layout updates to show logged-in state
+      } else {
+        setServerError(result.message);
+      }
     } catch (error) {
-      console.error("Login failed", error);
+      setServerError("An unexpected error occurred. Please try again.");
     }
   };
 
   return (
     <div className="w-full space-y-8">
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Display Backend Errors */}
+        {serverError && (
+          <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium text-center">
+            {serverError}
+          </div>
+        )}
 
         <div className="space-y-1.5">
           <label className="text-[13px] font-semibold text-gray-700">Email Address</label>
@@ -46,7 +57,7 @@ export default function LoginForm() {
               type="email"
               placeholder="name@example.com"
               className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
-                errors.email ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                errors.email || serverError ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
               }`}
             />
           </div>
@@ -62,7 +73,7 @@ export default function LoginForm() {
               type="password"
               placeholder="Enter your password"
               className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
-                errors.password ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                errors.password || serverError ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
               }`}
             />
           </div>
@@ -82,7 +93,6 @@ export default function LoginForm() {
           </Link>
         </div>
 
-
         <button
           type="submit"
           disabled={isSubmitting}
@@ -92,14 +102,10 @@ export default function LoginForm() {
         </button>
       </form>
 
-
       <div className="pt-6 text-center border-t border-gray-100">
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link 
-            href="/register" 
-            className="text-[#8b5cf6] font-bold hover:text-[#7c3aed] transition-colors"
-          >
+          <Link href="/register" className="text-[#8b5cf6] font-bold hover:text-[#7c3aed] transition-colors">
             Register
           </Link>
         </p>
