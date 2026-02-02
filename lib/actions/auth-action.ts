@@ -1,11 +1,12 @@
 "use server"
 
 
-import { register, login } from "../api/auth"
+import { register, login, whoAmI, updateProfile } from "../api/auth"
 import { LoginValue, RegisterData } from "@/app/(auth)/schema";
 import { setAuthToken , setUserData, clearAuthCookies } from "../cookie";
 import {redirect} from "next/navigation";
 import { set } from "zod";
+import { revalidatePath } from "next/cache";
 
 
 
@@ -67,4 +68,39 @@ export const handleLogin = async (formData : any) =>{
 export const handleLogout = async () => {
     await clearAuthCookies();
     return redirect('/login');
+}
+
+
+export async function handleWhoAmI() {
+    try {
+        const result = await whoAmI();
+        if (result.success) {
+            return {
+                success: true,
+                message: 'User data fetched successfully',
+                data: result.data
+            };
+        }
+        return { success: false, message: result.message || 'Failed to fetch user data' };
+    } catch (error: Error | any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function handleUpdateProfile(profileData: FormData) {
+    try {
+        const result = await updateProfile(profileData);
+        if (result.success) {
+            await setUserData(result.data); // update cookie 
+            revalidatePath('/user/profile'); // revalidate profile page/ refresh new data
+            return {
+                success: true,
+                message: 'Profile updated successfully',
+                data: result.data
+            };
+        }
+        return { success: false, message: result.message || 'Failed to update profile' };
+    } catch (error: Error | any) {
+        return { success: false, message: error.message };
+    }
 }
