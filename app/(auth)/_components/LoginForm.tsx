@@ -12,12 +12,12 @@ import { useState, useTransition } from "react";
 export default function LoginForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition(); // Added Transition for better web UX
+  const [isPending, startTransition] = useTransition(); 
 
   const {
     register,
     handleSubmit,
-    formState: { errors }, // removed isSubmitting to use isPending
+    formState: { errors }, 
   } = useForm<LoginValue>({
     resolver: zodResolver(loginSchema),
   });
@@ -34,7 +34,7 @@ export default function LoginForm() {
           if (result.data?.role === 'admin') {
              router.replace("/admin");
           } else if (result.data?.role === 'user') {
-             router.replace("/auth/dashboard"); // Adjusted to your requirement #4
+             router.replace("/user/dashboard"); // Fixed route to match actual dashboard location
           } else {
              router.replace("/");
           }

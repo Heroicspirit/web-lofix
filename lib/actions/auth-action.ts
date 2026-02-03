@@ -1,6 +1,4 @@
 "use server"
-
-
 import { register, login, whoAmI, updateProfile } from "../api/auth"
 import { LoginValue, RegisterData } from "@/app/(auth)/schema";
 import { setAuthToken , setUserData, clearAuthCookies } from "../cookie";
