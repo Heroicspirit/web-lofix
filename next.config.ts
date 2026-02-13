@@ -1,7 +1,21 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const backendURL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const IsDEV = backendURL.startsWith("http://localhost");
+
+const config: NextConfig = {
+  images: {
+    dangerouslyAllowLocalIP: IsDEV,
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+        pathname: "/upload/**",
+      },
+    ],
+  },
 };
 
-export default nextConfig;
+export default config;

@@ -8,7 +8,7 @@ export const UserSchema = z.object({
     password: z.string().min(6, { message: "Minimum 6 characters" }),
     confirmPassword: z.string().min(6, { message: "Minimum 6 characters" }),
     name: z.string().optional(),
-    image: z
+    profilePicture: z
         .instanceof(File)
         .optional()
         .refine((file) => !file || file.size <= MAX_FILE_SIZE, {

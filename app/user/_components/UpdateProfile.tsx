@@ -104,9 +104,9 @@ export default function UpdateUserForm({
                                 )}
                             />
                         </div>
-                    ) : user?.imageUrl ? (
+                    ) : user?.profilePicture ? (
                         <Image
-                            src={process.env.NEXT_PUBLIC_API_BASE_URL + user.imageUrl}
+                            src={process.env.NEXT_PUBLIC_API_BASE_URL + user.profilePicture?.replace('/uploads/', '/upload/')}
                             alt="Profile Image"
                             width={100}
                             height={100}
