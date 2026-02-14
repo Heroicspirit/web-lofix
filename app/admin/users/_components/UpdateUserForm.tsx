@@ -60,6 +60,13 @@ export default function UpdateUserForm(
                 if (data.profilePicture) {
                     formData.append('image', data.profilePicture);
                 }
+                
+                // Debug: Log FormData contents
+                console.log('FormData being sent:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value instanceof File ? `File: ${value.name}, ${value.size} bytes, ${value.type}` : value);
+                }
+                
                 const response = await handleUpdateUser(user._id, formData);
 
                 if (!response.success) {

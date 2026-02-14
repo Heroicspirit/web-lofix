@@ -73,7 +73,14 @@ export const handleGetOneUser = async (id: string) => {
 
 export const handleUpdateUser = async (id: string, data: FormData) => {
     try {
+        // Debug: Log FormData contents received
+        console.log('Server: FormData received for user update:', id);
+        for (let [key, value] of data.entries()) {
+            console.log(key, value instanceof File ? `File: ${value.name}, ${value.size} bytes, ${value.type}` : value);
+        }
+        
         const response = await updateUser(id, data)
+        console.log('Backend API response:', JSON.stringify(response, null, 2))
         if (response.success) {
             revalidatePath('/admin/users');
             return {
