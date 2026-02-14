@@ -1,14 +1,14 @@
 import z from "zod";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 export const UserSchema = z.object({
     email: z.email({ message: "Enter a valid email" }),
     password: z.string().min(6, { message: "Minimum 6 characters" }),
     confirmPassword: z.string().min(6, { message: "Minimum 6 characters" }),
     name: z.string().optional(),
-    image: z
+    profilePicture: z
         .instanceof(File)
         .optional()
         .refine((file) => !file || file.size <= MAX_FILE_SIZE, {

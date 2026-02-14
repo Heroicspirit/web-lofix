@@ -1,5 +1,5 @@
 "use server"
-import { register, login, whoAmI, updateProfile } from "../api/auth"
+import { register, login, whoAmI, updateProfile, requestPasswordReset, resetPassword } from "../api/auth"
 import { LoginValue, RegisterData } from "@/app/(auth)/schema";
 import { setAuthToken , setUserData, clearAuthCookies } from "../cookie";
 import {redirect} from "next/navigation";
@@ -83,7 +83,7 @@ export async function handleWhoAmI() {
     } catch (error: Error | any) {
         return { success: false, message: error.message };
     }
-}
+};
 
 export async function handleUpdateProfile(profileData: FormData) {
     try {
@@ -101,4 +101,34 @@ export async function handleUpdateProfile(profileData: FormData) {
     } catch (error: Error | any) {
         return { success: false, message: error.message };
     }
-}
+};
+
+export const handleRequestPasswordReset = async (email: string) => {
+    try {
+        const response = await requestPasswordReset(email);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password reset email sent successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Request password reset failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Request password reset action failed' }
+    }
+};
+
+export const handleResetPassword = async (token: string, newPassword: string) => {
+    try {
+        const response = await resetPassword(token, newPassword);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password has been reset successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Reset password failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Reset password action failed' }
+    }
+};
