@@ -44,7 +44,15 @@ const ForgetPasswordForm = () => {
                     id="email"
                     type="email"
                     autoComplete="email"
-                    className="h-10 w-full rounded-md border border-black/10 dark:border-white/15 bg-background px-3 text-sm outline-none focus:border-foreground/40"
+                    className="h-10 w-full rounded-md
+    border border-black/20
+    bg-white text-black
+    placeholder:text-black/40
+    px-3 text-sm
+    outline-none
+    focus:border-black
+    focus:ring-1 focus:ring-black/30
+"
                     {...register("email")}
                     placeholder="you@example.com"
                 />
