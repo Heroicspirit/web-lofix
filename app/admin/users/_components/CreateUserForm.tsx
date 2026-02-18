@@ -5,7 +5,7 @@ import { UserData, UserSchema } from "@/app/admin/users/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { Camera, X, User, Mail, Lock } from "lucide-react"; // Added for modern look
+import { Camera, X, User, Mail, Lock } from "lucide-react";
 import { handleCreateUser } from "@/lib/actions/admin/user_action";
 
 export default function CreateUserForm() {
@@ -47,7 +47,7 @@ export default function CreateUserForm() {
                 formData.append("email", data.email);
                 formData.append("password", data.password);
                 formData.append("confirmPassword", data.confirmPassword);
-                if (data.image) formData.append("profilePicture", data.image);
+                if (data.profilePicture) formData.append("profilePicture", data.profilePicture);
 
                 const response = await handleCreateUser(formData);
 
@@ -86,7 +86,7 @@ export default function CreateUserForm() {
                     </div>
                     
                     <Controller
-                        name="image"
+                        name="profilePicture"
                         control={control}
                         render={({ field: { onChange } }) => (
                             <>
@@ -114,7 +114,7 @@ export default function CreateUserForm() {
                         )}
                     />
                 </div>
-                {errors.image && <p className="text-xs text-red-500 font-medium">{errors.image.message}</p>}
+                {errors.profilePicture && <p className="text-xs text-red-500 font-medium">{errors.profilePicture.message}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
