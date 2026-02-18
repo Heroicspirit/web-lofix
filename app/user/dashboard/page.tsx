@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const FOR_YOU = [
-  { id: 1, title: "Coffee", sub: "Morning Brew", src: "/images/image2.webp" },
-  { id: 2, title: "Beats", sub: "Focus Beats", src: "/images/image3.webp" },
-  { id: 3, title: "Nature", sub: "Indie Gems", src: "/images/image4.webp" },
+  { id: 1, title: "Dhun Song", sub: "Arijit Singh", src: "/images/image2.webp", audioUrl: "/upload/songs/Dhun Song _ Arijit Singh.mp3" },
+  { id: 2, title: "Radha", sub: "Swoopna Suman ft. Abhigya", src: "/images/image3.webp", audioUrl: "/upload/songs/Radha - Swoopna Suman ft. Abhigya ( Official MV ).mp3" },
+  { id: 3, title: "Coffee", sub: "Morning Brew", src: "/images/image4.webp" },
   { id: 4, title: "Chill", sub: "Chill Vibes", src: "/images/image5.jpg" },
 ];
 
@@ -78,6 +78,44 @@ export default function RootLandingPage() {
 
 
 function MusicRow({ title, subtitle, items, onPlay }: any) {
+  const [currentSong, setCurrentSong] = useState<any>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playSong = (song: any, index: number) => {
+    setCurrentSong(song);
+    setCurrentIndex(index);
+    setIsPlaying(true);
+  };
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const playNext = () => {
+    const nextIndex = (currentIndex + 1) % items.length;
+    playSong(items[nextIndex], nextIndex);
+  };
+
+  const playPrevious = () => {
+    const prevIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
+    playSong(items[prevIndex], prevIndex);
+  };
+
+  useEffect(() => {
+    if (audioRef.current && currentSong) {
+      audioRef.current.play();
+    }
+  }, [currentSong]);
+
   return (
     <section>
       <div className="flex justify-between items-end mb-6">
@@ -88,16 +126,25 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
         <button className="text-sm font-bold text-[#8b5cf6] hover:underline">View All</button>
       </div>
       <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-        {items.map((item: any) => (
+        {items.map((item: any, index: number) => (
           <div key={item.id} className="min-w-[200px] group">
             <div 
-              onClick={() => onPlay(item.title)}
-              className="relative h-48 rounded-2xl mb-4 overflow-hidden cursor-pointer shadow-sm group-hover:shadow-xl transition-all duration-300 bg-gray-100"
+              onClick={() => item.audioUrl && playSong(item, index)}
+              className={`relative h-48 rounded-2xl mb-4 overflow-hidden cursor-pointer shadow-sm group-hover:shadow-xl transition-all duration-300 bg-gray-100 ${
+                currentSong?.id === item.id ? 'ring-2 ring-[#8b5cf6]' : ''
+              }`}
             >
               <img src={item.src} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  <Play size={24} fill="currentColor" />
+                  {currentSong?.id === item.id && isPlaying ? (
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm mr-0.5"></div>
+                      <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm"></div>
+                    </div>
+                  ) : (
+                    <Play size={24} fill="currentColor" />
+                  )}
                 </div>
               </div>
             </div>
@@ -106,6 +153,65 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
           </div>
         ))}
       </div>
+      
+      {currentSong && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+          <audio
+            ref={audioRef}
+            src={`http://localhost:5000${currentSong.audioUrl}`}
+            onEnded={playNext}
+          />
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-4">
+              <img src={currentSong.src} alt={currentSong.title} className="w-12 h-12 rounded-lg" />
+              <div>
+                <h4 className="font-semibold text-gray-900">{currentSong.title}</h4>
+                <p className="text-sm text-gray-500">{currentSong.sub}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <button
+                onClick={playPrevious}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8.445 14.832A1 1 0 0010 14v-8a1 1 0 00-1.555-.832L5 8.382V6a1 1 0 00-2 0v8a1 1 0 002 0v-2.382l3.445 3.214z"/>
+                </svg>
+              </button>
+              
+              <button
+                onClick={togglePlayPause}
+                className="p-3 bg-[#8b5cf6] text-white rounded-full hover:bg-[#7c3aed] transition-colors"
+              >
+                {isPlaying ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
+                  </svg>
+                )}
+              </button>
+              
+              <button
+                onClick={playNext}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L8 11.618V14a1 1 0 002 0V6a1 1 0 00-2 0v2.382L4.555 5.168z"/>
+                  <path d="M15 6a1 1 0 00-1 1v6a1 1 0 102 0V7a1 1 0 00-1-1z"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              {currentIndex + 1} / {items.length}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
