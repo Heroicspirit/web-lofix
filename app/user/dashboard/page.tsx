@@ -4,29 +4,111 @@ import React, { useState, useRef, useEffect } from "react";
 import { Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const FOR_YOU = [
-  { id: 1, title: "Dhun Song", sub: "Arijit Singh", src: "/images/image2.webp", audioUrl: "/upload/songs/Dhun Song _ Arijit Singh.mp3" },
-  { id: 2, title: "Radha", sub: "Swoopna Suman ft. Abhigya", src: "/images/image3.webp", audioUrl: "/upload/songs/Radha - Swoopna Suman ft. Abhigya ( Official MV ).mp3" },
-  { id: 3, title: "Coffee", sub: "Morning Brew", src: "/images/image4.webp" },
-  { id: 4, title: "Chill", sub: "Chill Vibes", src: "/images/image5.jpg" },
-];
-
 const TOP_ARTISTS = [
-  { id: 1, name: "Jax Bloom", sub: "Artist", src: "/images/singer1.webp" },
-  { id: 2, name: "Sonu Nigam", sub: "Artist", src: "/images/singer2.webp" },
-  { id: 3, name: "The Weeknd", sub: "Artist", src: "/images/singer3.webp" },
-  { id: 4, name: "Lofi Girl", sub: "Artist", src: "/images/singer4.webp" },
+  { id: 1, name: "Jax Bloom", sub: "Artist", src: "http://localhost:5000/upload/images/singer%201.webp" },
+  { id: 2, name: "Sonu Nigam", sub: "Artist", src: "http://localhost:5000/upload/images/singer2.webp" },
+  { id: 3, name: "The Weeknd", sub: "Artist", src: "http://localhost:5000/upload/images/singer%201.webp" },
+  { id: 4, name: "Lofi Girl", sub: "Artist", src: "http://localhost:5000/upload/images/singer2.webp" },
 ];
 
 export default function RootLandingPage() {
   const router = useRouter();
+  const [songs, setSongs] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSongs();
+    fetchAlbums();
+  }, []);
+
+  const fetchSongs = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/songs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch songs');
+      }
+      const data = await response.json();
+      
+      // Transform backend data to match frontend format
+      const transformedSongs = data.data?.songs?.map((song: any) => ({
+        id: song._id,
+        title: song.title,
+        sub: song.artist?.name || 'Unknown Artist',
+        src: song.album.coverImage && song.album.coverImage !== '/upload/hello.png' 
+          ? (song.album.coverImage.startsWith('http') ? song.album.coverImage : `http://localhost:5000${song.album.coverImage}`)
+          : `http://localhost:5000/upload/images/singer${(Math.floor(Math.random() * 4) + 1)}.webp`,
+        audioUrl: song.audioUrl.startsWith('http') ? song.audioUrl : `http://localhost:5000${song.audioUrl}`
+      })) || [];
+      
+      setSongs(transformedSongs);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAlbums = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/albums');
+      if (!response.ok) {
+        throw new Error('Failed to fetch albums');
+      }
+      const data = await response.json();
+      
+      // Transform backend data to match frontend format
+      const transformedAlbums = data.data?.albums?.map((album: any) => ({
+        id: album._id,
+        title: album.title,
+        sub: album.artist?.name || 'Unknown Artist',
+        src: album.coverImage.startsWith('http') ? album.coverImage : `http://localhost:5000${album.coverImage}`,
+        audioUrl: null // Albums don't have single audio URL
+      })) || [];
+      
+      setAlbums(transformedAlbums);
+    } catch (err) {
+      console.error('Failed to fetch albums:', err);
+    }
+  };
+
   const handlePlayAction = (title: string) => {
     console.log("Playing:", title);
   };
 
+  if (loading) {
+    return (
+      <div className="py-6 space-y-12 pb-20">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#207bc5]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-6 space-y-12 pb-20">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">Error loading songs: {error}</p>
+            <button 
+              onClick={fetchSongs}
+              className="bg-[#207bc5] text-white px-6 py-2 rounded-full font-bold text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-6 space-y-12 pb-20">
-      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#8275aa] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
+      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#1d88be] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
         <div className="relative z-10">
           <p className="text-sm font-medium opacity-80 mb-2 flex items-center gap-2">
             <Sparkles size={16} /> Featured Album: Synthwave Dreams
@@ -34,7 +116,7 @@ export default function RootLandingPage() {
           <h1 className="text-5xl font-bold max-w-xl leading-tight mb-6">Discover Your Next Obsession</h1>
           <button 
             onClick={() => handlePlayAction("Featured Album")}
-            className="bg-white text-[#8b5cf6] px-8 py-3 rounded-full font-bold text-sm shadow-sm hover:scale-105 transition-transform"
+            className="bg-white text-[#207bc5] px-8 py-3 rounded-full font-bold text-sm shadow-sm hover:scale-105 transition-transform"
           >
             Start Listening
           </button>
@@ -43,8 +125,9 @@ export default function RootLandingPage() {
       </section>
 
 
-      <MusicRow title="For You" subtitle="Based on your recent activity" items={FOR_YOU} onPlay={handlePlayAction} />
+      <MusicRow title="For You" subtitle="Based on your recent activity" items={songs} onPlay={handlePlayAction} />
 
+      <MusicRow title="Albums" subtitle="Discover new releases" items={albums} onPlay={handlePlayAction} />
 
       <section>
         <div className="flex justify-between items-end mb-6">
@@ -52,7 +135,7 @@ export default function RootLandingPage() {
             <h2 className="text-2xl font-bold text-gray-900">Top Artists</h2>
             <p className="text-sm text-gray-400">Your favorite creators</p>
           </div>
-          <button className="text-sm font-bold text-[#8b5cf6] hover:underline">View All</button>
+          <button className="text-sm font-bold text-[#14c9f6] hover:underline">View All</button>
         </div>
         <div className="flex gap-8 overflow-x-auto pb-4 no-scrollbar">
           {TOP_ARTISTS.map((artist) => (
@@ -60,7 +143,7 @@ export default function RootLandingPage() {
               <div className="relative w-40 h-40 mx-auto mb-4 rounded-full overflow-hidden shadow-md group-hover:shadow-xl transition-all">
                 <img src={artist.src} alt={artist.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-xl"><Play size={20} fill="currentColor" /></div>
+                  <div className="bg-white p-3 rounded-full text-[#42a0ed] shadow-xl"><Play size={20} fill="currentColor" /></div>
                 </div>
               </div>
               <h3 className="font-bold text-gray-900">{artist.name}</h3>
@@ -71,7 +154,7 @@ export default function RootLandingPage() {
       </section>
 
 
-      <MusicRow title="Trending Now" subtitle="Most played this week" items={[...FOR_YOU].reverse()} onPlay={handlePlayAction} />
+      <MusicRow title="Trending Now" subtitle="Most played this week" items={[...songs].reverse()} onPlay={handlePlayAction} />
     </div>
   );
 }
@@ -123,7 +206,7 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
           {subtitle && <p className="text-sm text-gray-400">{subtitle}</p>}
         </div>
-        <button className="text-sm font-bold text-[#8b5cf6] hover:underline">View All</button>
+        <button className="text-sm font-bold text-[#5ca9f6] hover:underline">View All</button>
       </div>
       <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
         {items.map((item: any, index: number) => (
@@ -131,10 +214,17 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
             <div 
               onClick={() => item.audioUrl && playSong(item, index)}
               className={`relative h-48 rounded-2xl mb-4 overflow-hidden cursor-pointer shadow-sm group-hover:shadow-xl transition-all duration-300 bg-gray-100 ${
-                currentSong?.id === item.id ? 'ring-2 ring-[#8b5cf6]' : ''
+                currentSong?.id === item.id ? 'ring-2 ring-[#5c95f6]' : ''
               }`}
             >
-              <img src={item.src} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img 
+                src={item.src} 
+                alt={item.title} 
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onError={(e) => {
+                  e.currentTarget.src = 'http://localhost:5000/upload/hello.png';
+                }}
+              />
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                   {currentSong?.id === item.id && isPlaying ? (
@@ -158,12 +248,19 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
           <audio
             ref={audioRef}
-            src={`http://localhost:5000${currentSong.audioUrl}`}
+            src={currentSong.audioUrl}
             onEnded={playNext}
           />
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
-              <img src={currentSong.src} alt={currentSong.title} className="w-12 h-12 rounded-lg" />
+              <img 
+                src={currentSong.src} 
+                alt={currentSong.title} 
+                className="w-12 h-12 rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = 'http://localhost:5000/upload/hello.png';
+                }}
+              />
               <div>
                 <h4 className="font-semibold text-gray-900">{currentSong.title}</h4>
                 <p className="text-sm text-gray-500">{currentSong.sub}</p>
@@ -182,7 +279,7 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
               
               <button
                 onClick={togglePlayPause}
-                className="p-3 bg-[#8b5cf6] text-white rounded-full hover:bg-[#7c3aed] transition-colors"
+                className="p-3 bg-[#496699] text-white rounded-full hover:bg-[#1567da] transition-colors"
               >
                 {isPlaying ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

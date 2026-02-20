@@ -34,6 +34,8 @@ export default function SearchPage() {
    * @param playlist Playlist containing the song
    */
   const playSong = (song: any, index: number, playlist: any[]) => {
+    console.log('Playing song:', song); // Debug log
+    console.log('Song audio URL:', song.audioUrl); // Debug log
     setCurrentSong(song);
     setCurrentIndex(index);
     setCurrentPlaylist(playlist);
@@ -103,10 +105,27 @@ export default function SearchPage() {
         // Fetch songs from backend API
         const res = await fetch(`http://localhost:5000/api/auth/search?q=${query}`);
         const data = await res.json();
+        console.log('Search API response:', data); // Debug log
+        
         // Check if API call was successful
         if (data.success) {
+          // Transform backend data to match frontend format
+          const transformedSongs = data.data?.songs?.map((song: any) => {
+            const audioUrl = song.audioUrl.startsWith('http') ? song.audioUrl : `http://localhost:5000${song.audioUrl}`;
+            console.log('Transformed song audio URL:', audioUrl); // Debug log
+            return {
+              _id: song._id,
+              title: song.title,
+              album: song.album || 'Unknown Album',
+              artist: song.artist?.name || 'Unknown Artist',
+              coverImage: song.coverImage 
+                ? (song.coverImage.startsWith('http') ? song.coverImage : `http://localhost:5000${song.coverImage}`)
+                : `http://localhost:5000/upload/hello.png`,
+              audioUrl: audioUrl
+            };
+          }) || [];
           // Update search results
-          setResults(data.data.songs);
+          setResults(transformedSongs);
         }
       } catch (error) {
         // Log any errors
@@ -201,7 +220,7 @@ export default function SearchPage() {
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
           <audio
             ref={audioRef}
-            src={`http://localhost:5000${currentSong.audioUrl}`}
+            src={currentSong.audioUrl}
             onEnded={playNext} // Auto-play next song when current ends
           />
           <div className="flex items-center justify-between max-w-4xl mx-auto">

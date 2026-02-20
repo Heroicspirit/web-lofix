@@ -70,7 +70,7 @@ export default function RegisterForm() {
                             {...register("name")}
                             placeholder="Enter your name"
                             className={`w-full pl-10 pr-4 py-2.5 rounded-lg border bg-white text-gray-900 outline-none transition-all ${
-                                errors.name ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                                errors.name ? "border-red-500" : "border-gray-200 focus:border-[#508aee]"
                             }`}
                         />
                     </div>
@@ -86,7 +86,7 @@ export default function RegisterForm() {
                             type="email"
                             placeholder="name@example.com"
                             className={`w-full pl-10 pr-4 py-2.5 rounded-lg border bg-white text-gray-900 outline-none transition-all ${
-                                errors.email ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                                errors.email ? "border-red-500" : "border-gray-200 focus:border-[#508aee]"
                             }`}
                         />
                     </div>
@@ -102,7 +102,7 @@ export default function RegisterForm() {
                             type="password"
                             placeholder="Enter your password"
                             className={`w-full pl-10 pr-4 py-2.5 rounded-lg border bg-white text-gray-900 outline-none transition-all ${
-                                errors.password ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                                errors.password ? "border-red-500" : "border-gray-200 focus:border-[#508aee]"
                             }`}
                         />
                     </div>
@@ -119,7 +119,7 @@ export default function RegisterForm() {
                             type="password"
                             placeholder="Confirm your password"
                             className={`w-full pl-10 pr-4 py-2.5 rounded-lg border bg-white text-gray-900 outline-none transition-all ${
-                                errors.confirmPassword ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                                errors.confirmPassword ? "border-red-500" : "border-gray-200 focus:border-[#508aee]"
                             }`}
                         />
                     </div>
@@ -129,14 +129,14 @@ export default function RegisterForm() {
                 <div className="flex items-center gap-2">
                     <input type="checkbox" required className="w-4 h-4 accent-[#8b5cf6] border-gray-300 rounded" />
                     <span className="text-[11px] text-gray-500">
-                        I agree to the <Link href="#" className="text-[#8b5cf6] hover:underline">Terms and Conditions</Link>
+                        I agree to the <Link href="#" className="text-[#1f12e0] hover:underline">Terms and Conditions</Link>
                     </span>
                 </div>
 
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold py-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full bg-[#277bf1] hover:bg-[#176cf4] text-white font-bold py-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {isPending ? "Creating account..." : "Create account"}
                 </button>
@@ -151,7 +151,7 @@ export default function RegisterForm() {
             <div className="text-center">
                 <p className="text-sm text-gray-600">
                     Already have an account?{" "}
-                    <Link href="/login" className="text-[#8b5cf6] font-bold hover:underline">
+                    <Link href="/login" className="text-[#5c7bf6] font-bold hover:underline">
                         Log in
                     </Link>
                 </p>

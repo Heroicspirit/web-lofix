@@ -108,7 +108,7 @@ export default function UpdateUserForm({ user }: { user: any }) {
                     {profilePictureUrl ? (
                         <img src={profilePictureUrl} className="h-full w-full object-cover" alt="Profile" />
                     ) : (
-                        <div className="h-full w-full flex items-center justify-center text-5xl text-gray-300">👤</div>
+                        <div className="h-full w-full flex items-center justify-center text-5xl text-gray-300"></div>
                     )}
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <span className="text-white font-bold text-xs">CHANGE</span>
@@ -136,10 +136,6 @@ export default function UpdateUserForm({ user }: { user: any }) {
                 <div className="text-center">
                     <span className="block text-3xl font-black text-gray-800">345</span>
                     <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">Liked Songs</span>
-                </div>
-                <div className="text-center">
-                    <span className="block text-3xl font-black text-gray-800">28</span>
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">Followed Artists</span>
                 </div>
             </div>
 
@@ -185,7 +181,7 @@ export default function UpdateUserForm({ user }: { user: any }) {
                         <button 
                             type="submit" 
                             disabled={isPending}
-                            className="bg-[#8B5CF6] text-white px-10 py-4 rounded-2xl font-black text-sm hover:bg-purple-600 transition shadow-xl shadow-purple-100 disabled:opacity-50"
+                            className="bg-[#5c88f6] text-white px-10 py-4 rounded-2xl font-black text-sm hover:bg-sky-500 transition shadow-xl shadow-purple-100 disabled:opacity-50"
                         >
                             {isPending ? "SAVING..." : "UPDATE PROFILE"}
                         </button>

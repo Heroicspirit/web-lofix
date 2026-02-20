@@ -66,7 +66,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             />
           </div>
           <form action={handleLogout}>
-            <button type="submit" className="text-sm font-bold hover:text-[#8b5cf6] transition-colors">
+            <button type="submit" className="text-sm font-bold hover:text-[#5c95f6] transition-colors">
               Logout
             </button>
           </form>
@@ -92,7 +92,7 @@ function SidebarLink({ href, icon, label, active = false }: SidebarLinkProps) {
     <Link href={href}>
       <div className={`flex items-center gap-4 px-4 py-3 rounded-2xl cursor-pointer transition-all ${
         active 
-          ? 'bg-purple-50 text-[#8b5cf6]' 
+          ? 'bg-purple-50 text-[#3444f9]' 
           : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
       }`}>
         {icon}
