@@ -17,6 +17,19 @@ export default function RootLandingPage() {
   const [albums, setAlbums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Audio player state - moved to parent to work across all MusicRow components
+  const [currentSong, setCurrentSong] = useState<any>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auto-play new song when currentSong changes
+  useEffect(() => {
+    if (audioRef.current && currentSong) {
+      audioRef.current.play();
+    }
+  }, [currentSong]);
 
   useEffect(() => {
     fetchSongs();
@@ -37,9 +50,9 @@ export default function RootLandingPage() {
         id: song._id,
         title: song.title,
         sub: song.artist?.name || 'Unknown Artist',
-        src: song.album.coverImage && song.album.coverImage !== '/upload/hello.png' 
-          ? (song.album.coverImage.startsWith('http') ? song.album.coverImage : `http://localhost:5000${song.album.coverImage}`)
-          : `http://localhost:5000/upload/images/singer${(Math.floor(Math.random() * 4) + 1)}.webp`,
+        src: song.coverImage && song.coverImage !== '/upload/hello.png' 
+          ? (song.coverImage.startsWith('http') ? song.coverImage : `http://localhost:5000${song.coverImage}`)
+          : `http://localhost:5000/upload/hello.png`,
         audioUrl: song.audioUrl.startsWith('http') ? song.audioUrl : `http://localhost:5000${song.audioUrl}`
       })) || [];
       
@@ -125,9 +138,33 @@ export default function RootLandingPage() {
       </section>
 
 
-      <MusicRow title="For You" subtitle="Based on your recent activity" items={songs} onPlay={handlePlayAction} />
+      <MusicRow 
+        title="For You" 
+        subtitle="Based on your recent activity" 
+        items={songs} 
+        onPlay={handlePlayAction}
+        currentSong={currentSong} 
+        setCurrentSong={setCurrentSong} 
+        isPlaying={isPlaying} 
+        setIsPlaying={setIsPlaying} 
+        currentIndex={currentIndex} 
+        setCurrentIndex={setCurrentIndex} 
+        audioRef={audioRef} 
+      />
 
-      <MusicRow title="Albums" subtitle="Discover new releases" items={albums} onPlay={handlePlayAction} />
+      <MusicRow 
+        title="Albums" 
+        subtitle="Discover new releases" 
+        items={albums} 
+        onPlay={handlePlayAction}
+        currentSong={currentSong} 
+        setCurrentSong={setCurrentSong} 
+        isPlaying={isPlaying} 
+        setIsPlaying={setIsPlaying} 
+        currentIndex={currentIndex} 
+        setCurrentIndex={setCurrentIndex} 
+        audioRef={audioRef} 
+      />
 
       <section>
         <div className="flex justify-between items-end mb-6">
@@ -154,19 +191,29 @@ export default function RootLandingPage() {
       </section>
 
 
-      <MusicRow title="Trending Now" subtitle="Most played this week" items={[...songs].reverse()} onPlay={handlePlayAction} />
+      <MusicRow 
+        title="Trending Now" 
+        subtitle="Most played this week" 
+        items={[...songs].reverse()} 
+        onPlay={handlePlayAction} 
+        currentSong={currentSong} 
+        setCurrentSong={setCurrentSong} 
+        isPlaying={isPlaying} 
+        setIsPlaying={setIsPlaying} 
+        currentIndex={currentIndex} 
+        setCurrentIndex={setCurrentIndex} 
+        audioRef={audioRef} 
+      />
     </div>
   );
 }
 
 
-function MusicRow({ title, subtitle, items, onPlay }: any) {
-  const [currentSong, setCurrentSong] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
+function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong, isPlaying, setIsPlaying, currentIndex, setCurrentIndex, audioRef }: any) {
   const playSong = (song: any, index: number) => {
+    console.log('Playing song:', song); // Debug log
+    console.log('Song audio URL:', song.audioUrl); // Debug audio URL
+    console.log('Current index:', index); // Debug index
     setCurrentSong(song);
     setCurrentIndex(index);
     setIsPlaying(true);
@@ -192,12 +239,6 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
     const prevIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
     playSong(items[prevIndex], prevIndex);
   };
-
-  useEffect(() => {
-    if (audioRef.current && currentSong) {
-      audioRef.current.play();
-    }
-  }, [currentSong]);
 
   return (
     <section>
@@ -250,6 +291,8 @@ function MusicRow({ title, subtitle, items, onPlay }: any) {
             ref={audioRef}
             src={currentSong.audioUrl}
             onEnded={playNext}
+            onLoadStart={() => console.log('Audio loading:', currentSong.audioUrl)} // Debug audio load
+            onError={(e) => console.log('Audio error:', e)} // Debug audio errors
           />
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
