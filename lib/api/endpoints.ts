@@ -22,5 +22,23 @@ export const API = {
             UPDATE: (songId: string) => `/api/songs/${songId}`,
             DELETE: (songId: string) => `/api/songs/${songId}`,
         }
+    },
+    SONG: {
+        GET_ALL: '/api/songs/',
+        GET_ONE: (songId: string) => `/api/songs/${songId}`,
+        UPDATE: (songId: string) => `/api/songs/${songId}`,
+        DELETE: (songId: string) => `/api/songs/${songId}`,
+    },
+    USER: {
+        PLAYLIST: {
+            CREATE: '/api/user/playlists',
+            GET_ALL: '/api/user/playlists',
+            GET_ONE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            UPDATE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            DELETE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            ADD_SONG: (playlistId: string) => `/api/user/playlists/${playlistId}/songs`,
+            REMOVE_SONG: (playlistId: string, songId: string) => `/api/user/playlists/${playlistId}/songs/${songId}`,
+            GET_SONGS: (playlistId: string) => `/api/user/playlists/${playlistId}/songs`
+        }
     }
 }

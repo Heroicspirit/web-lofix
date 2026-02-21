@@ -24,9 +24,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <Link href="/">
             <SidebarLink icon={<Home size={20} />} label="Home" active={pathname === "/"} />
           </Link>
-          <Link href="/music">
-            <SidebarLink icon={<Library size={20} />} label="Music" active={pathname === "/music"} />
-          </Link>
           <SidebarLink icon={<Compass size={20} />} label="Browse" />
           <SidebarLink icon={<Search size={20} />} label="Search" />
           <SidebarLink icon={<User size={20} />} label="Profile" />

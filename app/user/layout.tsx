@@ -30,12 +30,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             active={pathname === "/user/dashboard"} 
           />
           <SidebarLink 
-            href="/user/browse" 
-            icon={<Compass size={20} />} 
-            label="Browse" 
-            active={pathname === "/user/browse"} 
-          />
-          <SidebarLink 
             href="/user/search" 
             icon={<Search size={20} />} 
             label="Search" 

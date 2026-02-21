@@ -14,7 +14,6 @@ const TOP_ARTISTS = [
 export default function RootLandingPage() {
   const router = useRouter();
   const [songs, setSongs] = useState<any[]>([]);
-  const [albums, setAlbums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -33,7 +32,7 @@ export default function RootLandingPage() {
 
   useEffect(() => {
     fetchSongs();
-    fetchAlbums();
+    // fetchAlbums();
   }, []);
 
   const fetchSongs = async () => {
@@ -46,7 +45,7 @@ export default function RootLandingPage() {
       const data = await response.json();
       
       // Transform backend data to match frontend format
-      const transformedSongs = data.data?.songs?.map((song: any) => ({
+      const transformedSongs = data.data?.map((song: any) => ({
         id: song._id,
         title: song.title,
         sub: song.artist?.name || 'Unknown Artist',
@@ -81,7 +80,7 @@ export default function RootLandingPage() {
         audioUrl: null // Albums don't have single audio URL
       })) || [];
       
-      setAlbums(transformedAlbums);
+      // setAlbums(transformedAlbums);
     } catch (err) {
       console.error('Failed to fetch albums:', err);
     }
@@ -152,7 +151,7 @@ export default function RootLandingPage() {
         audioRef={audioRef} 
       />
 
-      <MusicRow 
+      {/* <MusicRow 
         title="Albums" 
         subtitle="Discover new releases" 
         items={albums} 
@@ -164,7 +163,7 @@ export default function RootLandingPage() {
         currentIndex={currentIndex} 
         setCurrentIndex={setCurrentIndex} 
         audioRef={audioRef} 
-      />
+      /> */}
 
       <section>
         <div className="flex justify-between items-end mb-6">

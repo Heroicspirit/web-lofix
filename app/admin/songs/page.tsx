@@ -17,7 +17,7 @@ export default function AdminSongsPage() {
   const fetchSongs = async () => {
     try {
       const response = await axios.get('/api/songs');
-      setSongs(response.data.data?.songs || []);
+      setSongs(response.data.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
