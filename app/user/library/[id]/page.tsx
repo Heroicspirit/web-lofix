@@ -129,10 +129,11 @@ export default function PlaylistDetailPage() {
     );
   };
 
-  const filteredSongs = availableSongs.filter(song =>
-    song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    song.artist.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSongs = availableSongs.filter(song => {
+    const artistName = typeof song.artist === 'string' ? song.artist : song.artist?.name || '';
+    return song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          artistName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -219,7 +220,7 @@ export default function PlaylistDetailPage() {
                     <span className="text-zinc-500 w-6 text-center">{index + 1}</span>
                     <div className="flex-1">
                       <h3 className="text-white font-medium">{song.title}</h3>
-                      <p className="text-zinc-400 text-sm">{song.artist}</p>
+                      <p className="text-zinc-400 text-sm">{typeof song.artist === 'string' ? song.artist : song.artist?.name || 'Unknown Artist'}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-zinc-400 text-sm">{formatDuration(song.duration)}</span>
@@ -296,7 +297,7 @@ export default function PlaylistDetailPage() {
                         />
                         <div className="flex-1">
                           <h4 className="text-white font-medium">{song.title}</h4>
-                          <p className="text-zinc-400 text-sm">{song.artist}</p>
+                          <p className="text-zinc-400 text-sm">{typeof song.artist === 'string' ? song.artist : song.artist?.name || 'Unknown Artist'}</p>
                         </div>
                         <span className="text-zinc-400 text-sm">
                           {formatDuration(song.duration)}

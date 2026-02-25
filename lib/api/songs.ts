@@ -4,7 +4,7 @@ import { API } from "./endpoints";
 export interface Song {
   _id: string;
   title: string;
-  artist: string;
+  artist: string | { _id: string; name: string; bio?: string };
   duration: number;
   album?: string;
   coverImage?: string;

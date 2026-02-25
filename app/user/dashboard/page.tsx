@@ -32,7 +32,17 @@ export default function RootLandingPage() {
 
   useEffect(() => {
     fetchSongs();
-    // fetchAlbums();
+    fetchAlbums();
+  }, []);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
   }, []);
 
   const fetchSongs = async () => {
@@ -277,13 +287,16 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
             ref={audioRef}
             src={currentSong.audioUrl}
             onEnded={playNext}
+            preload="metadata"
             onLoadStart={() => console.log('Audio loading:', currentSong.audioUrl)} // Debug audio load
             onError={(e) => {
               console.log('Audio error:', e);
-              // Try to reload the audio with cache busting
-              if (audioRef.current) {
+              // Only retry if it's a cache error, not other errors
+              if (audioRef.current && (e.target as HTMLAudioElement)?.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
                 const timestamp = Date.now();
-                audioRef.current.src = currentSong.audioUrl + '?t=' + timestamp;
+                const newSrc = currentSong.audioUrl + '?t=' + timestamp;
+                console.log('Retrying with cache busting:', newSrc);
+                audioRef.current.src = newSrc;
               }
             }}
             onCanPlay={() => {
@@ -291,10 +304,12 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
               if (audioRef.current && isPlaying) {
                 audioRef.current.play().catch((err: unknown) => {
                   console.log('Play error:', err);
-                  // If play fails, try to reload and play again
-                  if (audioRef.current) {
+                  // Only retry if it's a cache error
+                  if (err instanceof Error && err.name === "NotSupportedError") {
                     const timestamp = Date.now();
-                    audioRef.current.src = currentSong.audioUrl + '?t=' + timestamp;
+                    const newSrc = currentSong.audioUrl + '?t=' + timestamp;
+                    console.log('Retrying play with cache busting:', newSrc);
+                    audioRef.current.src = newSrc;
                     setTimeout(() => {
                       audioRef.current?.play().catch((e: unknown) => console.log('Retry play error:', e));
                     }, 100);
