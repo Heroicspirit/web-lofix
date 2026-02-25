@@ -37,10 +37,23 @@ export const handleGetAllPlaylists = async () => {
   try {
     const result = await getAllPlaylists();
     if (result.success) {
+      // Transform backend data to match frontend interface
+      const transformedPlaylists = result.data.map((playlist: any) => ({
+        id: playlist._id,
+        name: playlist.name,
+        description: playlist.description,
+        isPublic: playlist.isPublic || false,
+        coverColor: playlist.coverColor,
+        songCount: playlist.songs ? playlist.songs.length : 0,
+        createdAt: playlist.createdAt,
+        updatedAt: playlist.updatedAt,
+        userId: playlist.userId
+      }));
+      
       return {
         success: true,
         message: 'Playlists fetched successfully',
-        data: result.data
+        data: transformedPlaylists
       };
     }
     return { 

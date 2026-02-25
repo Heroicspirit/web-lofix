@@ -5,10 +5,10 @@ import { Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const TOP_ARTISTS = [
-  { id: 1, name: "Jax Bloom", sub: "Artist", src: "http://localhost:5000/upload/images/singer%201.webp" },
+  { id: 1, name: "Jax Bloom", sub: "Artist", src: "http://localhost:5000/upload/images/hello.webp" },
   { id: 2, name: "Sonu Nigam", sub: "Artist", src: "http://localhost:5000/upload/images/singer2.webp" },
-  { id: 3, name: "The Weeknd", sub: "Artist", src: "http://localhost:5000/upload/images/singer%201.webp" },
-  { id: 4, name: "Lofi Girl", sub: "Artist", src: "http://localhost:5000/upload/images/singer2.webp" },
+  { id: 3, name: "The Weeknd", sub: "Artist", src: "http://localhost:5000/upload/images/singer3.webp" },
+  { id: 4, name: "Lofi Girl", sub: "Artist", src: "http://localhost:5000/upload/images/singer4.webp" },
 ];
 
 export default function RootLandingPage() {
@@ -49,9 +49,9 @@ export default function RootLandingPage() {
         id: song._id,
         title: song.title,
         sub: song.artist?.name || 'Unknown Artist',
-        src: song.coverImage && song.coverImage !== '/upload/hello.png' 
+        src: song.coverImage && song.coverImage !== '/upload/images/hello.png' 
           ? (song.coverImage.startsWith('http') ? song.coverImage : `http://localhost:5000${song.coverImage}`)
-          : `http://localhost:5000/upload/hello.png`,
+          : `http://localhost:5000/upload/images/hello.png`,
         audioUrl: song.audioUrl.startsWith('http') ? song.audioUrl : `http://localhost:5000${song.audioUrl}`
       })) || [];
       
@@ -151,19 +151,6 @@ export default function RootLandingPage() {
         audioRef={audioRef} 
       />
 
-      {/* <MusicRow 
-        title="Albums" 
-        subtitle="Discover new releases" 
-        items={albums} 
-        onPlay={handlePlayAction}
-        currentSong={currentSong} 
-        setCurrentSong={setCurrentSong} 
-        isPlaying={isPlaying} 
-        setIsPlaying={setIsPlaying} 
-        currentIndex={currentIndex} 
-        setCurrentIndex={setCurrentIndex} 
-        audioRef={audioRef} 
-      /> */}
 
       <section>
         <div className="flex justify-between items-end mb-6">
@@ -291,7 +278,36 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
             src={currentSong.audioUrl}
             onEnded={playNext}
             onLoadStart={() => console.log('Audio loading:', currentSong.audioUrl)} // Debug audio load
-            onError={(e) => console.log('Audio error:', e)} // Debug audio errors
+            onError={(e) => {
+              console.log('Audio error:', e);
+              // Try to reload the audio with cache busting
+              if (audioRef.current) {
+                const timestamp = Date.now();
+                audioRef.current.src = currentSong.audioUrl + '?t=' + timestamp;
+              }
+            }}
+            onCanPlay={() => {
+              console.log('Audio can play:', currentSong.audioUrl);
+              if (audioRef.current && isPlaying) {
+                audioRef.current.play().catch((err: unknown) => {
+                  console.log('Play error:', err);
+                  // If play fails, try to reload and play again
+                  if (audioRef.current) {
+                    const timestamp = Date.now();
+                    audioRef.current.src = currentSong.audioUrl + '?t=' + timestamp;
+                    setTimeout(() => {
+                      audioRef.current?.play().catch((e: unknown) => console.log('Retry play error:', e));
+                    }, 100);
+                  }
+                });
+              }
+            }}
+            onStalled={() => {
+              console.log('Audio stalled, trying to recover');
+              if (audioRef.current && isPlaying) {
+                audioRef.current.play().catch((err: unknown) => console.log('Stalled play error:', err));
+              }
+            }}
           />
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
