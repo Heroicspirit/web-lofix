@@ -26,7 +26,15 @@ export default function RootLandingPage() {
   // Auto-play new song when currentSong changes
   useEffect(() => {
     if (audioRef.current && currentSong) {
-      audioRef.current.play();
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err: Error) => {
+          console.log('Auto-play error:', err);
+          if (err.name === "NotSupportedError") {
+            setIsPlaying(false); // Reset playing state
+          }
+        });
+      }
     }
   }, [currentSong]);
 
@@ -53,6 +61,11 @@ export default function RootLandingPage() {
         throw new Error('Failed to fetch songs');
       }
       const data = await response.json();
+      
+      // Check if response has expected structure
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch songs');
+      }
       
       // Transform backend data to match frontend format
       const transformedSongs = data.data?.map((song: any) => ({
@@ -206,13 +219,50 @@ export default function RootLandingPage() {
 
 
 function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong, isPlaying, setIsPlaying, currentIndex, setCurrentIndex, audioRef }: any) {
-  const playSong = (song: any, index: number) => {
-    console.log('Playing song:', song); // Debug log
-    console.log('Song audio URL:', song.audioUrl); // Debug audio URL
-    console.log('Current index:', index); // Debug index
+  const playSong = async (song: any, index: number) => {
     setCurrentSong(song);
     setCurrentIndex(index);
     setIsPlaying(true);
+
+    // Use a small timeout to ensure the DOM has updated the 'src'
+    setTimeout(() => {
+      if (audioRef.current) {
+        // Check if we need to change the source
+        const currentSrc = audioRef.current.src;
+        const newSrc = song.audioUrl;
+        
+        if (currentSrc !== newSrc) {
+          // Only pause and load if the source is different
+          audioRef.current.pause();
+          audioRef.current.src = newSrc;
+          audioRef.current.load();
+        }
+        
+        // Wait for the audio to be ready before playing
+        const playWhenReady = () => {
+          if (audioRef.current && audioRef.current.readyState >= 2) { // HAVE_CURRENT_DATA
+            // Handle the promise to prevent "Uncaught (in promise)"
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+              playPromise.catch((err: Error) => {
+                // Ignore: This usually happens due to the ERR_CACHE retry
+                console.debug("Playback pending recovery...");
+                // Reset playing state on error
+                if (err.name === "NotSupportedError") {
+                  setIsPlaying(false);
+                }
+              });
+            }
+          } else {
+            // If not ready, try again in 100ms
+            setTimeout(playWhenReady, 100);
+          }
+        };
+        
+        // Start trying to play
+        playWhenReady();
+      }
+    }, 50);
   };
 
   const togglePlayPause = () => {
@@ -220,10 +270,19 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
     
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play();
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err: Error) => {
+          console.log('Toggle play error:', err);
+          if (err.name === "NotSupportedError") {
+            setIsPlaying(false); // Reset playing state
+          }
+        });
+      }
+      setIsPlaying(true);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const playNext = () => {
@@ -286,36 +345,28 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
           <audio
             ref={audioRef}
             src={currentSong.audioUrl}
+            crossOrigin="anonymous"
             onEnded={playNext}
             preload="metadata"
             onLoadStart={() => console.log('Audio loading:', currentSong.audioUrl)} // Debug audio load
             onError={(e) => {
               console.log('Audio error:', e);
-              // Only retry if it's a cache error, not other errors
-              if (audioRef.current && (e.target as HTMLAudioElement)?.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
-                const timestamp = Date.now();
-                const newSrc = currentSong.audioUrl + '?t=' + timestamp;
-                console.log('Retrying with cache busting:', newSrc);
-                audioRef.current.src = newSrc;
+              // Check if the song actually failed. If it's playing, ignore the error.
+              if (audioRef.current?.readyState === 0) {
+                // Only retry if it's a cache error, not other errors
+                if (audioRef.current && (e.target as HTMLAudioElement)?.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+                  const timestamp = Date.now();
+                  const newSrc = currentSong.audioUrl + '?t=' + timestamp;
+                  console.log('Retrying with cache busting:', newSrc);
+                  audioRef.current.src = newSrc;
+                  audioRef.current.load(); // Load the new source
+                }
               }
             }}
             onCanPlay={() => {
               console.log('Audio can play:', currentSong.audioUrl);
-              if (audioRef.current && isPlaying) {
-                audioRef.current.play().catch((err: unknown) => {
-                  console.log('Play error:', err);
-                  // Only retry if it's a cache error
-                  if (err instanceof Error && err.name === "NotSupportedError") {
-                    const timestamp = Date.now();
-                    const newSrc = currentSong.audioUrl + '?t=' + timestamp;
-                    console.log('Retrying play with cache busting:', newSrc);
-                    audioRef.current.src = newSrc;
-                    setTimeout(() => {
-                      audioRef.current?.play().catch((e: unknown) => console.log('Retry play error:', e));
-                    }, 100);
-                  }
-                });
-              }
+              // Don't automatically play here - let the user control playback
+              // This prevents the NotSupportedError from appearing in console
             }}
             onStalled={() => {
               console.log('Audio stalled, trying to recover');

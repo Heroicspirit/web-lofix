@@ -27,7 +27,7 @@ export const getAllSongs = async () => {
 
 export const getSong = async (id: string) => {
   try {
-    const response = await axios.get(API.ADMIN.SONG.GET_ONE(id));
+    const response = await axios.get(`/api/songs/${id}`);
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
@@ -40,7 +40,7 @@ export const getSong = async (id: string) => {
 
 export const updateSong = async (id: string, songData: Partial<Song>) => {
   try {
-    const response = await axios.put(API.ADMIN.SONG.UPDATE(id), songData);
+    const response = await axios.put(`/api/songs/${id}`, songData);
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
@@ -53,7 +53,7 @@ export const updateSong = async (id: string, songData: Partial<Song>) => {
 
 export const deleteSong = async (id: string) => {
   try {
-    const response = await axios.delete(API.ADMIN.SONG.DELETE(id));
+    const response = await axios.delete(`/api/songs/${id}`);
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
