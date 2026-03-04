@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { usePlayer } from "@/context/PlayerContext";
 
 const TOP_ARTISTS = [
   { id: 1, name: "Jax Bloom", sub: "Artist", src: "http://localhost:5000/upload/images/hello.webp" },
@@ -17,40 +18,18 @@ export default function RootLandingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Audio player state - moved to parent to work across all MusicRow components
-  const [currentSong, setCurrentSong] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Global audio player state
+  const { currentSong, isPlaying, playSong, setPlaylist } = usePlayer();
 
-  // Auto-play new song when currentSong changes
-  useEffect(() => {
-    if (audioRef.current && currentSong) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err: Error) => {
-          console.log('Auto-play error:', err);
-          if (err.name === "NotSupportedError") {
-            setIsPlaying(false); // Reset playing state
-          }
-        });
-      }
-    }
-  }, [currentSong]);
+  // Wrapper function to play a song and set playlist
+  const handlePlaySong = (song: { id: string; title: string; sub: string; src: string; audioUrl: string }, playlist: any[]) => {
+    setPlaylist(playlist);
+    playSong(song);
+  };
 
   useEffect(() => {
     fetchSongs();
     fetchAlbums();
-  }, []);
-
-  // Cleanup audio when component unmounts
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
-    };
   }, []);
 
   const fetchSongs = async () => {
@@ -164,14 +143,9 @@ export default function RootLandingPage() {
         title="For You" 
         subtitle="Based on your recent activity" 
         items={songs} 
-        onPlay={handlePlayAction}
+        onPlay={(song: { id: string; title: string; sub: string; src: string; audioUrl: string }) => handlePlaySong(song, songs)}
         currentSong={currentSong} 
-        setCurrentSong={setCurrentSong} 
-        isPlaying={isPlaying} 
-        setIsPlaying={setIsPlaying} 
-        currentIndex={currentIndex} 
-        setCurrentIndex={setCurrentIndex} 
-        audioRef={audioRef} 
+        isPlaying={isPlaying}
       />
 
 
@@ -204,97 +178,16 @@ export default function RootLandingPage() {
         title="Trending Now" 
         subtitle="Most played this week" 
         items={[...songs].reverse()} 
-        onPlay={handlePlayAction} 
+        onPlay={(song: { id: string; title: string; sub: string; src: string; audioUrl: string }) => handlePlaySong(song, [...songs].reverse())}
         currentSong={currentSong} 
-        setCurrentSong={setCurrentSong} 
-        isPlaying={isPlaying} 
-        setIsPlaying={setIsPlaying} 
-        currentIndex={currentIndex} 
-        setCurrentIndex={setCurrentIndex} 
-        audioRef={audioRef} 
+        isPlaying={isPlaying}
       />
     </div>
   );
 }
 
 
-function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong, isPlaying, setIsPlaying, currentIndex, setCurrentIndex, audioRef }: any) {
-  const playSong = async (song: any, index: number) => {
-    setCurrentSong(song);
-    setCurrentIndex(index);
-    setIsPlaying(true);
-
-    // Use a small timeout to ensure the DOM has updated the 'src'
-    setTimeout(() => {
-      if (audioRef.current) {
-        // Check if we need to change the source
-        const currentSrc = audioRef.current.src;
-        const newSrc = song.audioUrl;
-        
-        if (currentSrc !== newSrc) {
-          // Only pause and load if the source is different
-          audioRef.current.pause();
-          audioRef.current.src = newSrc;
-          audioRef.current.load();
-        }
-        
-        // Wait for the audio to be ready before playing
-        const playWhenReady = () => {
-          if (audioRef.current && audioRef.current.readyState >= 2) { // HAVE_CURRENT_DATA
-            // Handle the promise to prevent "Uncaught (in promise)"
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-              playPromise.catch((err: Error) => {
-                // Ignore: This usually happens due to the ERR_CACHE retry
-                console.debug("Playback pending recovery...");
-                // Reset playing state on error
-                if (err.name === "NotSupportedError") {
-                  setIsPlaying(false);
-                }
-              });
-            }
-          } else {
-            // If not ready, try again in 100ms
-            setTimeout(playWhenReady, 100);
-          }
-        };
-        
-        // Start trying to play
-        playWhenReady();
-      }
-    }, 50);
-  };
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err: Error) => {
-          console.log('Toggle play error:', err);
-          if (err.name === "NotSupportedError") {
-            setIsPlaying(false); // Reset playing state
-          }
-        });
-      }
-      setIsPlaying(true);
-    }
-  };
-
-  const playNext = () => {
-    const nextIndex = (currentIndex + 1) % items.length;
-    playSong(items[nextIndex], nextIndex);
-  };
-
-  const playPrevious = () => {
-    const prevIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
-    playSong(items[prevIndex], prevIndex);
-  };
-
+function MusicRow({ title, subtitle, items, onPlay, currentSong, isPlaying }: any) {
   return (
     <section>
       <div className="flex justify-between items-end mb-6">
@@ -305,12 +198,12 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
         <button className="text-sm font-bold text-[#5ca9f6] hover:underline">View All</button>
       </div>
       <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-        {items.map((item: any, index: number) => (
+        {items.map((item: { id: string; title: string; sub: string; src: string; audioUrl: string }, index: number) => (
           <div key={item.id} className="min-w-[200px] group">
             <div 
-              onClick={() => item.audioUrl && playSong(item, index)}
+              onClick={() => item.audioUrl && onPlay(item)}
               className={`relative h-48 rounded-2xl mb-4 overflow-hidden cursor-pointer shadow-sm group-hover:shadow-xl transition-all duration-300 bg-gray-100 ${
-                currentSong?.id === item.id ? 'ring-2 ring-[#5c95f6]' : ''
+                (currentSong?.id === item.id || currentSong?._id === item.id) ? 'ring-2 ring-[#5c95f6]' : ''
               }`}
             >
               <img 
@@ -323,7 +216,7 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
               />
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  {currentSong?.id === item.id && isPlaying ? (
+                  {(currentSong?.id === item.id || currentSong?._id === item.id) && isPlaying ? (
                     <div className="w-5 h-5 flex items-center justify-center">
                       <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm mr-0.5"></div>
                       <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm"></div>
@@ -334,105 +227,11 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, setCurrentSong,
                 </div>
               </div>
             </div>
-            <h3 className="font-bold text-gray-900 leading-tight mb-0.5">{item.sub}</h3>
-            <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Playlist • Lofix</p>
+            <h3 className="font-bold text-gray-900 leading-tight mb-0.5">{item.title}</h3>
+            <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">{item.sub}</p>
           </div>
         ))}
       </div>
-      
-      {currentSong && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
-          <audio
-            ref={audioRef}
-            src={currentSong.audioUrl}
-            crossOrigin="anonymous"
-            onEnded={playNext}
-            preload="metadata"
-            onLoadStart={() => console.log('Audio loading:', currentSong.audioUrl)} // Debug audio load
-            onError={(e) => {
-              console.log('Audio error:', e);
-              // Check if the song actually failed. If it's playing, ignore the error.
-              if (audioRef.current?.readyState === 0) {
-                // Only retry if it's a cache error, not other errors
-                if (audioRef.current && (e.target as HTMLAudioElement)?.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
-                  const timestamp = Date.now();
-                  const newSrc = currentSong.audioUrl + '?t=' + timestamp;
-                  console.log('Retrying with cache busting:', newSrc);
-                  audioRef.current.src = newSrc;
-                  audioRef.current.load(); // Load the new source
-                }
-              }
-            }}
-            onCanPlay={() => {
-              console.log('Audio can play:', currentSong.audioUrl);
-              // Don't automatically play here - let the user control playback
-              // This prevents the NotSupportedError from appearing in console
-            }}
-            onStalled={() => {
-              console.log('Audio stalled, trying to recover');
-              if (audioRef.current && isPlaying) {
-                audioRef.current.play().catch((err: unknown) => console.log('Stalled play error:', err));
-              }
-            }}
-          />
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            <div className="flex items-center gap-4">
-              <img 
-                src={currentSong.src} 
-                alt={currentSong.title} 
-                className="w-12 h-12 rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.src = 'http://localhost:5000/upload/hello.png';
-                }}
-              />
-              <div>
-                <h4 className="font-semibold text-gray-900">{currentSong.title}</h4>
-                <p className="text-sm text-gray-500">{currentSong.sub}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <button
-                onClick={playPrevious}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.445 14.832A1 1 0 0010 14v-8a1 1 0 00-1.555-.832L5 8.382V6a1 1 0 00-2 0v8a1 1 0 002 0v-2.382l3.445 3.214z"/>
-                </svg>
-              </button>
-              
-              <button
-                onClick={togglePlayPause}
-                className="p-3 bg-[#496699] text-white rounded-full hover:bg-[#1567da] transition-colors"
-              >
-                {isPlaying ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
-                  </svg>
-                )}
-              </button>
-              
-              <button
-                onClick={playNext}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L8 11.618V14a1 1 0 002 0V6a1 1 0 00-2 0v2.382L4.555 5.168z"/>
-                  <path d="M15 6a1 1 0 00-1 1v6a1 1 0 102 0V7a1 1 0 00-1-1z"/>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="text-sm text-gray-500">
-              {currentIndex + 1} / {items.length}
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

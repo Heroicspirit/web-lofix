@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Search as SearchIcon, ChevronRight, Play } from "lucide-react";
+import { usePlayer } from "@/context/PlayerContext";
 
 // Static demo songs for the "Recommended for You" section when not searching
 const STATIC_ALBUMS = [
@@ -20,74 +21,14 @@ export default function SearchPage() {
   const [results, setResults] = useState([]); // Search results
   const [isSearching, setIsSearching] = useState(false); // Flag to indicate if search is in progress
   
-  // Audio player state - manages currently playing song and playback controls
-  const [currentSong, setCurrentSong] = useState<any>(null); // Currently playing song
-  const [isPlaying, setIsPlaying] = useState(false); // Flag to indicate if audio is playing
-  const [currentIndex, setCurrentIndex] = useState(-1); // Current index in playlist
-  const [currentPlaylist, setCurrentPlaylist] = useState<any[]>([]); // Current playlist
-  const audioRef = useRef<HTMLAudioElement | null>(null); // Reference to audio element
+  // Global audio player state
+  const { currentSong, isPlaying, playSong, setPlaylist } = usePlayer();
 
-  /**
-   * Play a specific song from a playlist at a given index
-   * @param song Song to play
-   * @param index Index of song in playlist
-   * @param playlist Playlist containing the song
-   */
-  const playSong = (song: any, index: number, playlist: any[]) => {
-    console.log('Playing song:', song); // Debug log
-    console.log('Song audio URL:', song.audioUrl); // Debug log
-    setCurrentSong(song);
-    setCurrentIndex(index);
-    setCurrentPlaylist(playlist);
-    setIsPlaying(true);
+  // Wrapper function to play a song and set playlist
+  const handlePlaySong = (song: any, playlist: any[]) => {
+    setPlaylist(playlist);
+    playSong(song);
   };
-
-  /**
-   * Toggle between play and pause for the current song
-   */
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  /**
-   * Play the next song in the current playlist
-   */
-  const playNext = () => {
-    // Check if playlist is empty
-    if (currentPlaylist.length === 0) return;
-    // Calculate next index
-    const nextIndex = (currentIndex + 1) % currentPlaylist.length;
-    // Play next song
-    playSong(currentPlaylist[nextIndex], nextIndex, currentPlaylist);
-  };
-
-  /**
-   * Play the previous song in the current playlist
-   */
-  const playPrevious = () => {
-    // Check if playlist is empty
-    if (currentPlaylist.length === 0) return;
-    // Calculate previous index
-    const prevIndex = currentIndex === 0 ? currentPlaylist.length - 1 : currentIndex - 1;
-    // Play previous song
-    playSong(currentPlaylist[prevIndex], prevIndex, currentPlaylist);
-  };
-
-  // Auto-play new song when currentSong changes
-  useEffect(() => {
-    // Check if audio element and current song exist
-    if (audioRef.current && currentSong) {
-      // Play current song
-      audioRef.current.play();
-    }
-  }, [currentSong]);
 
   // Handle search functionality with debouncing
   useEffect(() => {
@@ -170,7 +111,7 @@ export default function SearchPage() {
                   sub={song.album} 
                   src={song.coverImage} 
                   audioUrl={song.audioUrl} 
-                  playSong={() => playSong(song, index, results)}
+                  playSong={() => handlePlaySong(song, results)}
                   isPlaying={currentSong?._id === song._id && isPlaying}
                 />
               ))}
@@ -206,78 +147,13 @@ export default function SearchPage() {
                   sub={album.sub} 
                   src={album.src} 
                   audioUrl={album.audioUrl} 
-                  playSong={() => playSong(album, index, STATIC_ALBUMS)}
+                  playSong={() => handlePlaySong(album, STATIC_ALBUMS)}
                   isPlaying={currentSong?.id === album.id && isPlaying}
                 />
               ))}
             </div>
           </section>
         </>
-      )}
-      
-      {/* Audio Player - Fixed at bottom when song is playing */}
-      {currentSong && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
-          <audio
-            ref={audioRef}
-            src={currentSong.audioUrl}
-            onEnded={playNext} // Auto-play next song when current ends
-          />
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            {/* Song info display */}
-            <div className="flex items-center gap-4">
-              <img src={currentSong.src} alt={currentSong.title} className="w-12 h-12 rounded-lg" />
-              <div>
-                <h4 className="font-semibold text-gray-900">{currentSong.title}</h4>
-                <p className="text-sm text-gray-500">{currentSong.sub}</p>
-              </div>
-            </div>
-            
-            {/* Playback controls */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={playPrevious}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.445 14.832A1 1 0 0010 14v-8a1 1 0 00-1.555-.832L5 8.382V6a1 1 0 00-2 0v8a1 1 0 002 0v-2.382l3.445 3.214z"/>
-                </svg>
-              </button>
-              
-              <button
-                onClick={togglePlayPause}
-                className="p-3 bg-[#8b5cf6] text-white rounded-full hover:bg-[#7c3aed] transition-colors"
-              >
-                {isPlaying ? (
-                  // Pause icon
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                  </svg>
-                ) : (
-                  // Play icon
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
-                  </svg>
-                )}
-              </button>
-              
-              <button
-                onClick={playNext}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L8 11.618V14a1 1 0 002 0V6a1 1 0 00-2 0v2.382L4.555 5.168z"/>
-                  <path d="M15 6a1 1 0 00-1 1v6a1 1 0 102 0V7a1 1 0 00-1-1z"/>
-                </svg>
-              </button>
-            </div>
-            
-            {/* Playlist position indicator */}
-            <div className="text-sm text-gray-500">
-              {currentIndex + 1} / {currentPlaylist.length}
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

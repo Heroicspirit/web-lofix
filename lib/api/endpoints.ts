@@ -31,14 +31,14 @@ export const API = {
     },
     USER: {
         PLAYLIST: {
-            CREATE: '/api/playlists',
-            GET_ALL: '/api/playlists',
-            GET_ONE: (playlistId: string) => `/api/playlists/${playlistId}`,
-            UPDATE: (playlistId: string) => `/api/playlists/${playlistId}`,
-            DELETE: (playlistId: string) => `/api/playlists/${playlistId}`,
-            ADD_SONG: (playlistId: string) => `/api/playlists/${playlistId}/songs`,
-            REMOVE_SONG: (playlistId: string, songId: string) => `/api/playlists/${playlistId}/songs/${songId}`,
-            GET_SONGS: (playlistId: string) => `/api/playlists/${playlistId}/songs`
+            CREATE: '/api/user/playlists',
+            GET_ALL: '/api/user/playlists',
+            GET_ONE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            UPDATE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            DELETE: (playlistId: string) => `/api/user/playlists/${playlistId}`,
+            ADD_SONG: (playlistId: string) => `/api/user/playlists/${playlistId}/songs`,
+            REMOVE_SONG: (playlistId: string, songId: string) => `/api/user/playlists/${playlistId}/songs/${songId}`,
+            GET_SONGS: (playlistId: string) => `/api/user/playlists/${playlistId}/songs`
         }
     }
 }

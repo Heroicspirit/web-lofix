@@ -11,7 +11,12 @@ export default function Header() {
             <div className="mx-auto max-w-7xl px-6 lg:px-10">
                 <div className="flex h-20 items-center justify-between">
                     
-                    {/* Search / Context Hint */}
+                    {/* Left Side - Logo/Brand */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-xl font-bold text-slate-900">Admin</span>
+                    </div>
+
+                    {/* Center: Empty or Search */}
                     <div className="hidden md:flex items-center gap-3 text-slate-400 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 cursor-text group">
                         <Command size={14} />
                         <span className="text-xs font-bold uppercase tracking-widest group-hover:text-slate-600 transition-colors">

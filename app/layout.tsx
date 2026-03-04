@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "./_components/ToastProvider";
 import { PlayerProvider } from "@/context/PlayerContext";
+import GlobalPlayerBar from "./_components/GlobalPlayerBar";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,11 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-20`}
       >
         <PlayerProvider>
         {children}
         <ToastProvider />
+        <GlobalPlayerBar />
         </PlayerProvider>
       </body>
     </html>

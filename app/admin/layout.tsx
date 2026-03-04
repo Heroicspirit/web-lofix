@@ -2,8 +2,6 @@
 import Header from "./_components/Header";
 import Sidebar from "./_components/Sidebar";
 import { AuthProvider } from "@/context/AuthContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -38,19 +36,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </main>
                 </div>
             </div>
-
-            {/* TOAST CONTAINER: 
-                Updated to match the dark theme. 
-                Background is now a dark glass instead of white glass.
-            */}
-            <ToastContainer 
-                toastClassName={() => 
-                    "relative flex p-4 min-h-10 rounded-2xl justify-between overflow-hidden cursor-pointer bg-slate-900/90 backdrop-blur-xl border border-slate-800 shadow-2xl shadow-black/50 mb-4 text-slate-200"
-                }
-                position="top-right"
-                autoClose={3000}
-                theme="dark"
-            />
         </AuthProvider>
     );
 }

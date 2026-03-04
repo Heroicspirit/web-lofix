@@ -32,7 +32,7 @@ export default function RootLandingPage() {
 
   return (
     <div className="py-6 space-y-12 pb-20">
-      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#8275aa] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
+      <section className="relative h-72 rounded-3xl overflow-hidden bg-gradient-to-r from-[#1d88be] to-[#b5a1f4] p-10 text-white flex flex-col justify-center shadow-lg">
         <div className="relative z-10">
           <p className="text-sm font-medium opacity-80 mb-2 flex items-center gap-2">
             <Sparkles size={16} /> Featured Album: Synthwave Dreams

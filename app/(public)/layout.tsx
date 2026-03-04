@@ -24,17 +24,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <Link href="/">
             <SidebarLink icon={<Home size={20} />} label="Home" active={pathname === "/"} />
           </Link>
-          <SidebarLink icon={<Compass size={20} />} label="Browse" />
           <SidebarLink icon={<Search size={20} />} label="Search" />
+          <SidebarLink icon={<Library size={20} />} label="Library" />
           <SidebarLink icon={<User size={20} />} label="Profile" />
         </nav>
       </aside>
 
       <div className="flex-1 flex flex-col relative overflow-hidden">
         <header className="h-20 flex items-center justify-between px-10 bg-white/50 backdrop-blur-md">
-          <div className="w-96 bg-gray-50 rounded-full px-5 py-2 flex items-center gap-3">
-            <Search size={18} className="text-gray-400" />
-            <input className="bg-transparent text-sm outline-none w-full" placeholder="Search music..." />
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-gray-900">Welcome</span>
           </div>
           <div className="flex gap-4">
             <Link href="/login" className="text-sm font-bold pt-2 hover:text-[#8b5cf6]">Log in</Link>
