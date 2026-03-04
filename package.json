@@ -20,6 +20,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -28,5 +29,21 @@
     "eslint-config-next": "16.1.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "- https://tailwindflex.com/\r - https://www.heroui.com/\r - https://ui.shadcn.com/",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heroicspirit/web-lofix.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Heroicspirit/web-lofix/issues"
+  },
+  "homepage": "https://github.com/Heroicspirit/web-lofix#readme"
 }
