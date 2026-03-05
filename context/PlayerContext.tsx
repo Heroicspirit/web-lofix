@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useRef, useState, useEffect } from "react";
 
 interface Song {
   _id?: string;
@@ -38,10 +38,64 @@ const normalizeAudioUrl = (value: string) => {
 
 export const PlayerProvider = ({ children }: any) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playlist, setPlaylist] = useState<Song[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Load state from localStorage on mount
+  const [currentSong, setCurrentSong] = useState<Song | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('currentSong');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  });
+  
+  const [isPlaying, setIsPlaying] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('isPlaying');
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+  
+  const [playlist, setPlaylist] = useState<Song[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('playlist');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('currentIndex');
+      return saved ? JSON.parse(saved) : 0;
+    }
+    return 0;
+  });
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentSong', JSON.stringify(currentSong));
+    }
+  }, [currentSong]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isPlaying', JSON.stringify(isPlaying));
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('playlist', JSON.stringify(playlist));
+    }
+  }, [playlist]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentIndex', JSON.stringify(currentIndex));
+    }
+  }, [currentIndex]);
 
   const playSong = (song: Song) => {
     if (!audioRef.current) return;

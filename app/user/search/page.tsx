@@ -172,6 +172,7 @@ function AlbumCard({ title, sub, src, audioUrl, playSong, isPlaying }: any) {
   return (
     <div className="group cursor-pointer">
       <div 
+        data-testid="song-item"
         onClick={playSong}
         className={`relative aspect-square rounded-2xl mb-4 overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 ${
           isPlaying ? 'ring-2 ring-[#8b5cf6]' : '' // Purple ring when playing

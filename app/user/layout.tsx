@@ -4,6 +4,7 @@ import { Home, Compass, Search, Library, User, Headphones } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { handleLogout } from "@/lib/actions/auth-action";
+import GlobalPlayerBar from "../_components/GlobalPlayerBar";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,7 +12,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   // Ensure this matches your dashboard route exactly
   const isDashboard = pathname === "/dashboard";
   if (isDashboard) {
-    return <main className="w-full h-full">{children}</main>;
+    return (
+      <>
+        <main className="w-full h-full">{children}</main>
+        <GlobalPlayerBar />
+      </>
+    );
   }
 
   return (
@@ -63,6 +69,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
         <main className="flex-1 overflow-y-auto px-10 pb-10 pt-8">
           {children}
+          <GlobalPlayerBar />
         </main>
       </div>
     </div>

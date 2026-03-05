@@ -201,6 +201,7 @@ function MusicRow({ title, subtitle, items, onPlay, currentSong, isPlaying }: an
         {items.map((item: { id: string; title: string; sub: string; src: string; audioUrl: string }, index: number) => (
           <div key={item.id} className="min-w-[200px] group">
             <div 
+              data-testid="song-item"
               onClick={() => item.audioUrl && onPlay(item)}
               className={`relative h-48 rounded-2xl mb-4 overflow-hidden cursor-pointer shadow-sm group-hover:shadow-xl transition-all duration-300 bg-gray-100 ${
                 (currentSong?.id === item.id || currentSong?._id === item.id) ? 'ring-2 ring-[#5c95f6]' : ''
