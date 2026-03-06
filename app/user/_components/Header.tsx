@@ -1,7 +1,7 @@
 "use client";
 
 import ThemeToggle from "@/app/_components/ThemeToggle";
-import { handleLogout } from "@/lib/actions/auth-action";
+import LogoutButton from "./LogoutButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -41,12 +41,7 @@ export default function Header() {
                     {/* Right: Auth + Mobile Toggle */}
                     <div className="flex items-center gap-2 md:justify-self-end">
                         <div className="hidden sm:flex items-center gap-2">
-                            <button
-                                onClick={handleLogout}
-                                className="h-9 px-3 inline-flex items-center justify-center rounded-md border border-black/10 dark:border-white/15 text-sm font-medium hover:bg-foreground/5 transition-colors"
-                            >
-                                Logout
-                            </button>
+                            <LogoutButton />
                         </div>
 
                         {/* Theme toggle */}
@@ -80,12 +75,7 @@ export default function Header() {
                     <div className="pb-4 pt-2 border-t border-black/10 dark:border-white/10">
                         <div className="flex flex-col gap-2">
                             <div className="mt-2 flex items-center gap-2">
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex-1 h-9 px-3 inline-flex items-center justify-center rounded-md border border-black/10 dark:border-white/15 text-sm font-medium hover:bg-foreground/5 transition-colors"
-                                >
-                                    Logout
-                                </button>
+                                <LogoutButton isMobile={true} />
                             </div>
                         </div>
                     </div>

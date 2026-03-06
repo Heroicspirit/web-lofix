@@ -67,7 +67,7 @@ export default function LoginForm() {
               type="email"
               placeholder="name@example.com"
               className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
-                errors.email ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                errors.email ? "border-red-500" : "border-gray-200 focus:border-[#5cc5f6]"
               }`}
             />
           </div>
@@ -84,7 +84,7 @@ export default function LoginForm() {
               type="password"
               placeholder="Enter your password"
               className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white text-gray-900 outline-none transition-all focus:ring-4 focus:ring-purple-500/10 ${
-                errors.password ? "border-red-500" : "border-gray-200 focus:border-[#8b5cf6]"
+                errors.password ? "border-red-500" : "border-gray-200 focus:border-[#5cdaf6]"
               }`}
             />
           </div>
@@ -96,11 +96,11 @@ export default function LoginForm() {
           <label className="flex items-center gap-2 cursor-pointer group">
             <input 
               type="checkbox" 
-              className="w-4 h-4 rounded border-gray-300 accent-[#8b5cf6] cursor-pointer" 
+              className="w-4 h-4 rounded border-gray-300 accent-[#1f97c7] cursor-pointer" 
             />
             <span className="text-[13px] text-gray-500 group-hover:text-gray-700">Remember me</span>
           </label>
-          <Link href="/forget-password" className="text-[13px] text-[#8b5cf6] font-semibold hover:underline">
+          <Link href="/forget-password" className="text-[13px] text-[#2276eb] font-semibold hover:underline">
             Forgot password?
           </Link>
         </div>
@@ -109,7 +109,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-100 active:scale-[0.98] disabled:opacity-70"
+          className="w-full bg-[#277bf1] hover:bg-[#176cf4] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-100 active:scale-[0.98] disabled:opacity-70"
         >
           {isPending ? "Connecting to Lofix..." : "Login"}
         </button>
@@ -118,7 +118,7 @@ export default function LoginForm() {
       <div className="pt-6 text-center border-t border-gray-100">
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link href="/register" className="text-[#8b5cf6] font-bold hover:text-[#7c3aed] transition-colors">
+          <Link href="/register" className="text-[#0e79dc] font-bold hover:text-[#3aa8ed] transition-colors">
             Register
           </Link>
         </p>

@@ -1,0 +1,206 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { Search as SearchIcon, ChevronRight, Play } from "lucide-react";
+import { usePlayer } from "@/context/PlayerContext";
+
+// Static demo songs for the "Recommended for You" section when not searching
+const STATIC_ALBUMS = [
+  { id: 1, title: "Coffee", sub: "Morning Brew", src: "/images/image2.webp", audioUrl: "/audio/coffee.mp3" },
+  { id: 2, title: "Beats", sub: "Focus Beats", src: "/images/image3.webp", audioUrl: "/audio/beats.mp3" },
+  { id: 3, title: "Nature", sub: "Indie Gems", src: "/images/image4.webp", audioUrl: "/audio/nature.mp3" },
+  { id: 4, title: "Chill", sub: "Chill Vibes", src: "/images/image5.jpg", audioUrl: "/audio/chill.mp3" },
+];
+
+/**
+ * SearchPage component: Handles search functionality and audio playback
+ */
+export default function SearchPage() {
+  // Search state - manages the search input and results
+  const [query, setQuery] = useState(""); // Search query input
+  const [results, setResults] = useState([]); // Search results
+  const [isSearching, setIsSearching] = useState(false); // Flag to indicate if search is in progress
+  
+  // Global audio player state
+  const { currentSong, isPlaying, playSong, setPlaylist } = usePlayer();
+
+  // Wrapper function to play a song and set playlist
+  const handlePlaySong = (song: any, playlist: any[]) => {
+    setPlaylist(playlist);
+    playSong(song);
+  };
+
+  // Handle search functionality with debouncing
+  useEffect(() => {
+    const handleSearch = async () => {
+      // Check if search query is too short
+      if (query.length < 2) {
+        // Reset search results
+        setResults([]);
+        return;
+      }
+
+      // Set searching flag to true
+      setIsSearching(true);
+      try {
+        // Fetch songs from backend API
+        const res = await fetch(`http://localhost:5000/api/auth/search?q=${query}`);
+        const data = await res.json();
+        console.log('Search API response:', data); // Debug log
+        
+        // Check if API call was successful
+        if (data.success) {
+          // Transform backend data to match frontend format
+          const transformedSongs = data.data?.songs?.map((song: any) => {
+            const audioUrl = song.audioUrl.startsWith('http') ? song.audioUrl : `http://localhost:5000${song.audioUrl}`;
+            console.log('Transformed song audio URL:', audioUrl); // Debug log
+            return {
+              _id: song._id,
+              title: song.title,
+              album: song.album || 'Unknown Album',
+              artist: song.artist?.name || 'Unknown Artist',
+              coverImage: song.coverImage 
+                ? (song.coverImage.startsWith('http') ? song.coverImage : `http://localhost:5000${song.coverImage}`)
+                : `http://localhost:5000/upload/hello.png`,
+              audioUrl: audioUrl
+            };
+          }) || [];
+          // Update search results
+          setResults(transformedSongs);
+        }
+      } catch (error) {
+        // Log any errors
+        console.error("Search error:", error);
+      } finally {
+        // Set searching flag to false
+        setIsSearching(false);
+      }
+    };
+
+    // Debounce search to avoid too many API calls
+    const debounce = setTimeout(handleSearch, 300);
+    // Clear timeout on component unmount
+    return () => clearTimeout(debounce);
+  }, [query]);
+
+  return (
+    <div className="py-6 space-y-10">
+      {/* Search Bar - Input field for searching songs */}
+      <div className="relative max-w-2xl">
+        <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for songs, artists, or albums..."
+          className="w-full bg-white border border-gray-100 py-4 pl-14 pr-6 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-purple-100 transition-all"
+        />
+      </div>
+
+      {/* Show search results when user has typed 2+ characters */}
+      {query.length >= 2 ? (
+        <section>
+          <h2 className="text-2xl font-bold mb-6">Search Results</h2>
+          {results.length > 0 ? (
+            // Grid of search result songs
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {results.map((song: any, index: number) => (
+                <AlbumCard 
+                  key={song._id} 
+                  title={song.title} 
+                  sub={song.album} 
+                  src={song.coverImage} 
+                  audioUrl={song.audioUrl} 
+                  playSong={() => handlePlaySong(song, results)}
+                  isPlaying={currentSong?._id === song._id && isPlaying}
+                />
+              ))}
+            </div>
+          ) : (
+            // Message when no songs found
+            <p className="text-gray-400">No real songs found in database yet...</p>
+          )}
+        </section>
+      ) : (
+        <>
+          {/* Default Content when not searching */}
+          <section>
+            <h2 className="text-2xl font-bold mb-6">Recent Searches</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {["Synthwave Dreams", "Lofi Girl", "Chill Study Beats"].map((item) => (
+                <div key={item} className="flex items-center justify-between p-4 bg-white border border-gray-50 rounded-2xl hover:bg-gray-50 cursor-pointer transition">
+                  <span className="font-semibold text-gray-700">{item}</span>
+                  <ChevronRight size={18} className="text-gray-300" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Recommended songs section */}
+          <section>
+            <h2 className="text-2xl font-bold mb-6">Recommended for You</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {STATIC_ALBUMS.map((album, index) => (
+                <AlbumCard 
+                  key={album.id} 
+                  title={album.title} 
+                  sub={album.sub} 
+                  src={album.src} 
+                  audioUrl={album.audioUrl} 
+                  playSong={() => handlePlaySong(album, STATIC_ALBUMS)}
+                  isPlaying={currentSong?.id === album.id && isPlaying}
+                />
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * AlbumCard component: Reusable song card with play functionality
+ * @param title Song title
+ * @param sub Song subtitle/artist
+ * @param src Cover image URL
+ * @param audioUrl Audio file URL
+ * @param playSong Function to play this song
+ * @param isPlaying Whether this song is currently playing
+ */
+function AlbumCard({ title, sub, src, audioUrl, playSong, isPlaying }: any) {
+  return (
+    <div className="group cursor-pointer">
+      <div 
+        data-testid="song-item"
+        onClick={playSong}
+        className={`relative aspect-square rounded-2xl mb-4 overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 ${
+          isPlaying ? 'ring-2 ring-[#8b5cf6]' : '' // Purple ring when playing
+        }`}
+      >
+        {/* Cover image */}
+        <img src={src} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        
+        {/* Hover overlay with play/pause button */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="bg-white p-3 rounded-full text-[#8b5cf6] shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+            {isPlaying ? (
+              // Pause icon for currently playing song
+              <div className="w-5 h-5 flex items-center justify-center">
+                <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm mr-0.5"></div>
+                <div className="w-2 h-4 bg-[#8b5cf6] rounded-sm"></div>
+              </div>
+            ) : (
+              // Play icon for other songs
+              <Play size={20} fill="currentColor" />
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Song info text */}
+      <h3 className="font-bold text-gray-900 leading-tight truncate">{title}</h3>
+      <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">{sub}</p>
+    </div>
+  );
+}

@@ -51,8 +51,7 @@ const ForgetPasswordForm = () => {
     px-3 text-sm
     outline-none
     focus:border-black
-    focus:ring-1 focus:ring-black/30
-"
+    focus:ring-1 focus:ring-black/30"
                     {...register("email")}
                     placeholder="you@example.com"
                 />

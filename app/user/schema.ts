@@ -7,7 +7,7 @@ export const updateUserSchema = z.object({
     lastName: z.string().min(2, { message: "Minimum 2 characters" }),
     email: z.string(),
     username: z.string().min(3, { message: "Minimum 3 characters" }),
-    image: z
+    profilePicture: z
         .instanceof(File)
         .optional()
         .refine((file) => !file || file.size <= MAX_FILE_SIZE, {

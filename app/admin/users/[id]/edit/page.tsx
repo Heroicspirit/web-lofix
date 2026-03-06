@@ -1,21 +1,49 @@
-import { handleGetOneUser } from "@/lib/actions/admin/user_action";
+"use client";
+import { useEffect, useState } from "react";
+import { getUserById } from "@/lib/api/admin/user";
 import UpdateUserForm from "../../_components/UpdateUserForm";
-export default async function Page({
+
+export default function Page({
     params
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const { id } = await params;
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const response = await handleGetOneUser(id);
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const { id } = await params;
+                const response = await getUserById(id);
+                
+                if (response.success) {
+                    setUser(response.data);
+                } else {
+                    setError(response.message || 'Failed to load user');
+                }
+            } catch (err: any) {
+                setError(err.message || 'Failed to load user');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    if (!response.success) {
-        throw new Error(response.message || 'Failed to load user');
+        fetchUser();
+    }, [params]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
     }
 
     return (
         <div>
-            <UpdateUserForm user={response.data} />
+            <UpdateUserForm user={user} />
         </div>
     );
 }
