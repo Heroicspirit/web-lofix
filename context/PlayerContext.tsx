@@ -24,6 +24,7 @@ interface PlayerContextType {
   nextSong: () => void;
   previousSong: () => void;
   currentIndex: number;
+  stopPlayer: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | null>(null);
@@ -163,6 +164,29 @@ export const PlayerProvider = ({ children }: any) => {
     playSong(playlist[prevIndex]);
   };
 
+  const stopPlayer = () => {
+    if (!audioRef.current) return;
+    
+    // Stop the audio
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    audioRef.current.src = '';
+    
+    // Reset all player state
+    setCurrentSong(null);
+    setIsPlaying(false);
+    setPlaylist([]);
+    setCurrentIndex(0);
+    
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('currentSong');
+      localStorage.removeItem('isPlaying');
+      localStorage.removeItem('playlist');
+      localStorage.removeItem('currentIndex');
+    }
+  };
+
   return (
     <PlayerContext.Provider
       value={{ 
@@ -174,7 +198,8 @@ export const PlayerProvider = ({ children }: any) => {
         setPlaylist, 
         nextSong, 
         previousSong, 
-        currentIndex 
+        currentIndex,
+        stopPlayer
       }}
     >
       {children}
