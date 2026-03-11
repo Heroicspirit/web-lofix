@@ -11,10 +11,9 @@ export default function LogoutButton({ isMobile = false }: LogoutButtonProps) {
   const { stopPlayer } = usePlayer();
 
   const handleLogoutClick = async () => {
-    // Stop the player first
+
     stopPlayer();
     
-    // Then logout
     await handleLogout();
   };
 

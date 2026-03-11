@@ -56,8 +56,8 @@ export default function UpdateUserForm({
             formData.append('lastName', data.lastName);
             formData.append('email', data.email);
             formData.append('username', data.username);
-            if (data.image) {
-                formData.append('image', data.image);
+            if (data.profilePicture) {
+                formData.append('image', data.profilePicture);
             }
             const response = await handleUpdateProfile(formData);
             
@@ -91,7 +91,7 @@ export default function UpdateUserForm({
                                 className="w-24 h-24 rounded-full object-cover"
                             />
                             <Controller
-                                name="image"
+                                name="profilePicture"
                                 control={control}
                                 render={({ field: { onChange } }) => (
                                     <button
@@ -123,7 +123,7 @@ export default function UpdateUserForm({
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">Profile Image</label>
                     <Controller
-                        name="image"
+                        name="profilePicture"
                         control={control}
                         render={({ field: { onChange } }) => (
                             <input
@@ -134,7 +134,7 @@ export default function UpdateUserForm({
                             />
                         )}
                     />
-                    {errors.image && <p className="text-sm text-red-600">{errors.image.message}</p>}
+                    {errors.profilePicture && <p className="text-sm text-red-600">{errors.profilePicture.message}</p>}
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
